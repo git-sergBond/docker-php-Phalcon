@@ -1,7 +1,5 @@
-version: "3"
-
-services: 
-
-  web:
-    build: ./web
-    
+version: '3'
+services:
+  php:
+    build: ./php
+    restart: always
