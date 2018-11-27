@@ -7,19 +7,20 @@ services:
     restart: always
     volumes: 
       - "./site:/var/www/html"
-  composer: 
-    image: composer
-    volumes: 
-      - "./site:/var/www/html"
-    working_dir: "/var/www/html"
-    command: composer install
-#  nginx:
-#    build: ./nginx
-#    ports:
-#      - 8080:80
-#    restart: always
+#  composer: 
+#    image: composer
+#    volumes: 
+#      - "./site:/var/www/html"
+#    working_dir: "/var/www/html"
+#    command: composer install
 #  db:
 #    image: postgres
 #    restart: always
+#    ports:
+#      - 5432:5432
+#    volumes:
+#      - ./db:/var/lib/postgresql/data
 #    environment:
-#      POSTGRES_PASSWORD: example
+#      POSTGRES_USER: bro4you_ru
+#      POSTGRES_PASSWORD: bro4you_ru
+#      POSTGRES_DB: bro4you_ru
