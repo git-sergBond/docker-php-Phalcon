@@ -1,24 +1,18 @@
-FROM ubuntu:16.04
+FROM ubuntu:latest
 
 ENV TZ=Europe/Kiev
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apt update && apt -y upgrade && apt install -y software-properties-common apache2 curl\
-    && rm -r /var/lib/apt/lists/* \
-    && rm -rf /tmp/* \
-# OR python-software-properties \
-    && add-apt-repository ppa:ondrej/php \
-    && apt-get update 
+RUN apt-get update && apt-get -y upgrade
+#&& apt-get -y upgrade && apt-get install -y apt-utils software-properties-common apache2 && add-apt-repository ppa:ondrej/php && apt-get update 
 
-RUN apt install -y php7.0 php7.0-dev \
-    libpcre3-dev \
-    gcc \
-    php7.0-phalcon \
-    make \
-    && rm -r /var/lib/apt/lists/* \
-    && rm -rf /tmp/* \
+#RUN apt-get install -y php7.0-dev libpcre3-dev gcc php7.0-phalcon make 
+RUN apt-get install -y php php-dev libpcre3-dev gcc
+RUN apt-get install -y apache2
+RUN apt-get install -y git && git clone https://github.com/phalcon/cphalcon && cd cphalcon/build && ./install
 
-RUN curl -s https://packagecloud.io/install/repositories/phalcon/stable/script.deb.sh | bash
-RUN echo 'extension=phalcon.so' >/etc/php/7.0/mods-available/phalcon.ini
 
-CMD [ "/etc/init.d/apache2 start" ]
+#RUN echo 'extension=phalcon.so' >/etc/php/7.0/mods-available/phalcon.ini
+
+EXPOSE 80
+CMD /etc/init.d/apache2 restart
