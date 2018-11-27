@@ -5,6 +5,8 @@ services:
     ports:
       - 8080:80
     restart: always
+    volumes: 
+      - "./site:/var/www/html"
 
 #  nginx:
 #    build: ./nginx
