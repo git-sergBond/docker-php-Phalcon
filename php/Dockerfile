@@ -10,9 +10,9 @@ RUN apt-get update && apt-get -y upgrade
 RUN apt-get install -y php php-dev libpcre3-dev gcc
 RUN apt-get install -y apache2
 RUN apt-get install -y git && git clone https://github.com/phalcon/cphalcon && cd cphalcon/build && ./install
-RUN echo 'extension=phalcon.so' >/etc/php/7.2/mods-available/phalcon.ini
-
+RUN echo 'extension=phalcon.so' >> /etc/php/7.2/mods-available/phalcon.ini
+RUN phpenmod phalcon
+RUN apt-get install -y nano
 EXPOSE 80
-RUN chmod 777 /var/www/html
-#VOLUME ["/var/www/html"]
+WORKDIR /etc/php/7.2
 CMD apachectl -D FOREGROUND
