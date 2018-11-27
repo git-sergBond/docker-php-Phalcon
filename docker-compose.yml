@@ -2,4 +2,12 @@ version: '3'
 services:
   php:
     build: ./php
+    ports:
+      - 8080:80
     restart: always
+
+#  db:
+#    image: postgres
+#    restart: always
+#    environment:
+#      POSTGRES_PASSWORD: example
