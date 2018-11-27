@@ -13,6 +13,7 @@ RUN apt-get install -y git && git clone https://github.com/phalcon/cphalcon && c
 RUN echo 'extension=phalcon.so' >> /etc/php/7.2/mods-available/phalcon.ini
 RUN phpenmod phalcon
 RUN apt-get install -y nano
+RUN apt-get install -y php-pgsql
 EXPOSE 80
 WORKDIR /etc/php/7.2
 CMD apachectl -D FOREGROUND

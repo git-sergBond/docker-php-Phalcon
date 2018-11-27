@@ -1,0 +1,437 @@
+#
+# Minimal Sphinx configuration sample (clean, simple, functional)
+#
+
+source bro4you
+{
+  type      = pgsql
+
+  sql_host    = localhost
+  sql_user    = postgres
+  sql_pass    = 1234
+  sql_db      = service_services
+  sql_port    = 5432  # optional, default is 3306
+
+#  sql_query    = \
+#    SELECT serviceid, services.name, services.description, serv.regionid,  radians(latitude) as latitude, radians(longitude) as  longitude, "tradePoints".pointid, "tradePoints".name as pname \
+#    FROM services \
+#        LEFT JOIN "servicesPoints" USING (serviceid) \
+#        LEFT JOIN "tradePoints" USING (pointid) 
+
+    sql_query    = \
+        SELECT serviceid, service, service as service2, \
+        points, points as points2, subject, subject as subject2,\
+         images, latitude, longitude, regionid, pointid, \
+         categories, categories as categories2 FROM \
+        ((SELECT "tradePoints".pointid,radians(latitude) as latitude, radians(longitude) as  longitude,\
+                    serv.regionid,\
+                    serv.serviceid, row_to_json(serv) as service, \
+                    row_to_json(comp) as "subject", \
+                   array(SELECT row_to_json(cat.*) FROM public.categories as cat INNER JOIN \
+                                  public."companiesCategories" compcat ON (compcat.categoryid = cat.categoryid) \
+                                           WHERE comp.companyid = compcat.companyid) as "categories", \
+                   array(SELECT row_to_json(points) FROM public."tradePoints" as points INNER JOIN  \
+                                  public."servicesPoints" servpoint ON (servpoint.pointid = points.pointid \
+                                  AND points.deleted = false) \
+                                           WHERE servpoint.serviceid = serv.serviceid) as "points", \
+                   array(SELECT row_to_json(images) FROM public.imagesservices as images \
+                                           WHERE images.serviceid = serv.serviceid) as "images" \
+                  FROM public.companies as comp \
+                  INNER JOIN public.services as serv ON (serv.subjectid = comp.companyid AND serv.subjecttype = 1 \
+                  AND serv.deleted = false AND comp.deleted = false)\
+                   LEFT JOIN "servicesPoints" USING (serviceid) \
+                                           LEFT JOIN "tradePoints" USING (pointid) ) \
+                  UNION ALL \
+                  (SELECT "tradePoints".pointid,radians(latitude) as latitude, radians(longitude) as  longitude, \
+                  serv.regionid,\
+                  serv.serviceid, row_to_json(serv) as service, \
+                    row_to_json(us) as "subject", \
+                   array(SELECT row_to_json(cat.*) FROM public.categories as cat INNER JOIN \
+                                  public.userscategories uc ON(uc.categoryid = cat.categoryid) \
+                                           WHERE uc.userid = us.userid) as "categories", \
+                   array(SELECT row_to_json(points) FROM public."tradePoints" as points INNER JOIN \
+                                  public."servicesPoints" servpoint ON (servpoint.pointid = points.pointid \
+                                  AND points.deleted = false) \
+                                           WHERE servpoint.serviceid = serv.serviceid) as "points", \
+                  array(SELECT row_to_json(images) FROM public.imagesservices as images \
+                                           WHERE images.serviceid = serv.serviceid) as "images" \
+                  FROM public.userinfo as us \
+                  INNER JOIN public.services as serv ON (serv.subjectid = us.userid AND serv.subjecttype = 0 \
+                  AND serv.deleted = false)  \
+                  INNER JOIN public.users ON (us.userid = public.users.userid)\
+                  LEFT JOIN "servicesPoints" USING (serviceid) \
+                         LEFT JOIN "tradePoints" USING (pointid) ) \
+                  ) foo
+
+      sql_attr_uint    = regionid
+      sql_attr_float    = latitude
+      sql_attr_float    = longitude
+      sql_attr_multi    = uint pointid from field; pointid
+      sql_attr_string    = points
+      sql_attr_string    = subject
+      sql_attr_string    = images
+      sql_attr_string    = service
+      sql_attr_string    = categories
+}
+
+source bro4you_small
+{
+  type      = pgsql
+
+  sql_host    = localhost
+  sql_user    = postgres
+  sql_pass    = 1234
+  sql_db      = service_services
+  sql_port    = 5432  # optional, default is 3306
+
+  sql_query    = \
+    SELECT serviceid, serviceid as servid, row_to_json(services.*) as service, regionid,  radians(latitude) as latitude, \
+    radians(longitude) as  longitude, "tradePoints".pointid, "tradePoints".name as pname, \
+    services.name, services.description\
+    FROM services \
+        LEFT JOIN "servicesPoints" USING (serviceid) \
+        LEFT JOIN "tradePoints" USING (pointid)
+
+  sql_attr_string   = service
+  sql_attr_uint     = servid
+  sql_attr_uint     = regionid
+  sql_attr_float    = latitude
+  sql_attr_float    = longitude
+  sql_attr_multi    = uint pointid from field; pointid
+}
+
+source companies_min
+{
+  type      = pgsql
+
+  sql_host    = localhost
+  sql_user    = postgres
+  sql_pass    = 1234
+  sql_db      = service_services
+  sql_port    = 5432  # optional, default is 3306
+
+  sql_query    = \
+    SELECT companyid, companies.name as name2, companies.description as description2, companies.name as name, companyid as elementId, 'company' as type,\
+      radians(latitude) as latitude, \
+    radians(longitude) as  longitude, regionid \
+    FROM companies \
+        LEFT JOIN "tradePoints" \
+            ON (companies.companyid = "tradePoints".subjectid AND \
+                    "tradePoints".subjecttype = 1)
+
+  sql_attr_string   = name
+  sql_attr_uint     = elementId
+  sql_attr_uint     = regionid
+  sql_attr_float    = latitude
+  sql_attr_float    = longitude
+  sql_attr_string   = type
+}
+
+source services_min
+ {
+   type      = pgsql
+
+   sql_host    = localhost
+   sql_user    = postgres
+   sql_pass    = 1234
+   sql_db      = service_services
+   sql_port    = 5432  # optional, default is 3306
+
+   sql_query    = \
+     SELECT serviceid, serviceid as elementId, services.name as name, \
+     regionid,  radians(latitude) as latitude, \
+     radians(longitude) as  longitude, \
+     services.name as name2,services.description as description2, 'service' as type\
+     FROM services \
+         LEFT JOIN "servicesPoints" USING (serviceid) \
+         LEFT JOIN "tradePoints" USING (pointid)
+
+   sql_attr_uint     = elementId
+   sql_attr_string   = name
+   sql_attr_uint     = regionid
+   sql_attr_string   = type
+   sql_attr_float    = latitude
+   sql_attr_float    = longitude
+ }
+
+source autocomplete
+{
+  type      = pgsql
+
+  sql_host    = localhost
+  sql_user    = postgres
+  sql_pass    = 1234
+  sql_db      = service_services
+  sql_port    = 5432  # optional, default is 3306
+
+  sql_query    = \
+    SELECT id2, name2, description2, elementid, name, longitude, latitude, regionid, type\
+    FROM (\
+    (SELECT serviceid as id2,services.name as name2,\
+     services.description as description2, \
+     services.name as name, serviceid as elementId, \
+     radians(latitude) as latitude,radians(longitude) as  longitude, \
+     'service' as type, regionid\
+    FROM services \
+        LEFT JOIN "servicesPoints" USING (serviceid) \
+        LEFT JOIN "tradePoints" USING (pointid)\
+       )\
+     UNION ALL \
+     (\
+        SELECT companyid as id2, companies.name as name2,companies.description as description2, \
+        companies.name as name, companyid as elementId, \
+        radians(latitude) as latitude,radians(longitude) as  longitude, \
+        'company' as type, regionid \
+            FROM companies \
+                LEFT JOIN "tradePoints" \
+                    ON (companies.companyid = "tradePoints".subjectid AND \
+                            "tradePoints".subjecttype = 1) \
+      )\
+        ) foo
+
+
+  sql_attr_uint     = elementId
+  sql_attr_string   = name
+  sql_attr_uint     = regionid
+  sql_attr_string   = type
+  sql_attr_float    = latitude
+  sql_attr_float    = longitude
+}
+
+source categories_min
+{
+  type      = pgsql
+
+  sql_host    = localhost
+  sql_user    = postgres
+  sql_pass    = 1234
+  sql_db      = service_services
+  sql_port    = 5432  # optional, default is 3306
+
+  sql_query    = \
+    SELECT categoryid, elementId, name, \
+        latitude, \
+        longitude, \
+        name2, description2,\
+         type\
+        FROM(\
+    (SELECT categoryid, categoryid as elementId, categoryname as name, \
+        radians(latitude) as latitude, \
+        radians(longitude) as  longitude, \
+        categoryname as name2, categories.description as description2, 'category' as type\
+    FROM categories \
+        LEFT JOIN "companiesCategories" USING(categoryid) \
+        LEFT JOIN companies USING(companyid) \
+        LEFT JOIN "tradePoints" ON \
+            ("tradePoints".subjectid = companies.companyid AND "tradePoints".subjecttype = 1)\
+            )\
+     UNION ALL \
+     (\
+     SELECT categoryid, categoryid as elementId, categoryname as name, \
+         radians(latitude) as latitude, \
+         radians(longitude) as  longitude, \
+         categoryname as name2,categories.description as description2, 'category' as type\
+         FROM categories \
+             LEFT JOIN "userscategories" USING(categoryid) \
+             LEFT JOIN users USING(userid) \
+             LEFT JOIN "tradePoints" ON \
+                 ("tradePoints".subjectid = users.userid AND "tradePoints".subjecttype = 0)\
+      )\
+     ) foo
+
+  sql_attr_uint     = elementId
+  sql_attr_string   = name
+  sql_attr_string   = type
+  sql_attr_float    = latitude
+  sql_attr_float    = longitude
+}
+
+source services_with_company
+{
+  type      = pgsql
+
+  sql_host    = localhost
+  sql_user    = postgres
+  sql_pass    = 1234
+  sql_db      = service_services
+  sql_port    = 5432  # optional, default is 3306
+
+  sql_query    = \
+    SELECT serviceid, companyid, row_to_json(services.*) as service, services.regionid,  radians(latitude) as latitude, \
+    radians(longitude) as  longitude, "tradePoints".pointid, "tradePoints".name as pname, \
+    services.name, services.description\
+    FROM services \
+        INNER JOIN companies ON(services.subjectid = companies.companyid AND services.subjecttype = 1)\
+        LEFT JOIN "servicesPoints" USING (serviceid) \
+        LEFT JOIN "tradePoints" USING (pointid)
+
+  sql_attr_string   = service
+  sql_attr_uint     = companyid
+  sql_attr_uint     = regionid
+  sql_attr_float    = latitude
+  sql_attr_float    = longitude
+  sql_attr_multi    = uint pointid from field; pointid
+}
+
+source services_with_category
+{
+  type      = pgsql
+
+  sql_host    = localhost
+  sql_user    = postgres
+  sql_pass    = 1234
+  sql_db      = service_services
+  sql_port    = 5432  # optional, default is 3306
+
+  sql_query    = \
+    SELECT serviceid, categoryid, service, regionid, latitude,\
+    longitude, pointid, pname, name, description \
+    FROM (\
+    (\
+    SELECT serviceid, categoryid, row_to_json(services.*) as service, services.regionid,  \
+    radians(latitude) as latitude, \
+    radians(longitude) as  longitude, "tradePoints".pointid, "tradePoints".name as pname, \
+    services.name, services.description\
+    FROM services \
+        INNER JOIN companies ON(services.subjectid = companies.companyid AND services.subjecttype = 1)\
+        LEFT JOIN "servicesPoints" USING (serviceid) \
+        LEFT JOIN "tradePoints" USING (pointid) \
+            LEFT JOIN "companiesCategories" USING(companyid) \
+            LEFT JOIN categories USING(categoryid) \
+    )\
+    UNION ALL \
+    (\
+        SELECT serviceid, categoryid, row_to_json(services.*) as service, services.regionid,  \
+            radians(latitude) as latitude, \
+            radians(longitude) as  longitude, "tradePoints".pointid, "tradePoints".name as pname, \
+            services.name, services.description\
+            FROM services \
+                INNER JOIN users ON(services.subjectid = users.userid AND services.subjecttype = 0)\
+                LEFT JOIN "servicesPoints" USING (serviceid) \
+                LEFT JOIN "tradePoints" USING (pointid)\
+                    LEFT JOIN userscategories USING(userid) \
+                    LEFT JOIN categories USING(categoryid) \
+    )\
+    ) foo
+
+  sql_attr_string   = service
+  sql_attr_uint     = categoryid
+  sql_attr_uint     = regionid
+  sql_attr_float    = latitude
+  sql_attr_float    = longitude
+  sql_attr_multi    = uint pointid from field; pointid
+}
+
+index bro4you_index
+{
+  source      = bro4you
+  path      = C:/OpenServer/sphinx/data/bro4you
+  docinfo = extern
+ morphology    = stem_enru
+    mlock = 0
+    min_word_len = 3
+}
+
+index bro4you_small_index
+{
+  source      = bro4you_small
+  path      = C:/OpenServer/sphinx/data/bro4you_small
+  docinfo = extern
+  morphology    = stem_enru
+    mlock = 0
+    min_word_len = 3
+}
+
+index companies_min_index
+{
+  source      = companies_min
+  path      = C:/OpenServer/sphinx/data/companies_min
+  docinfo = extern
+  morphology    = stem_enru
+    mlock = 0
+    dict 				= keywords
+            index_exact_words 	= 1
+            expand_keywords		= 1
+            min_word_len		= 3
+            min_prefix_len		= 3
+}
+
+index services_min_index
+{
+  source      = services_min
+  path      = C:/OpenServer/sphinx/data/services_min
+  docinfo = extern
+  morphology    = stem_enru
+    mlock = 0
+    dict 				= keywords
+    index_exact_words 	= 1
+    expand_keywords		= 1
+    min_word_len		= 3
+    min_prefix_len		= 3
+}
+
+index autocomplete_index
+{
+  source      = autocomplete
+  path      = C:/OpenServer/sphinx/data/autocomplete
+  docinfo = extern
+  morphology    = stem_enru
+    mlock = 0
+    min_word_len = 3
+}
+
+index categories_min_index
+{
+  source      = categories_min
+  path      = C:/OpenServer/sphinx/data/categories_min
+  docinfo = extern
+  morphology    = stem_enru
+    mlock = 0
+    dict 				= keywords
+        index_exact_words 	= 1
+        expand_keywords		= 1
+        min_word_len		= 3
+        min_prefix_len		= 3
+}
+
+index services_with_company_index
+{
+  source      = services_with_company
+  path      = C:/OpenServer/sphinx/data/services_with_company
+  docinfo = extern
+  morphology    = stem_enru
+    mlock = 0
+    min_word_len = 3
+}
+
+index services_with_category_index
+{
+  source      = services_with_category
+  path      = C:/OpenServer/sphinx/data/services_with_category
+  docinfo = extern
+  morphology    = stem_enru
+    mlock = 0
+    min_word_len = 3
+}
+
+indexer
+{
+  mem_limit    = 128M
+}
+
+
+searchd
+{
+  listen      = 9312
+  listen      = 9306:mysql41
+  log      = C:/OpenServer/sphinx/log/searchd.log
+  query_log    = C:/OpenServer/sphinx/log/query.log
+  read_timeout    = 5
+  max_children    = 30
+  pid_file    = C:/OpenServer/sphinx/searchd.pid
+  seamless_rotate    = 1
+  preopen_indexes    = 1
+  unlink_old    = 1
+  workers      = threads # for RT to work
+  binlog_path    = C:/OpenServer/sphinx/data
+}

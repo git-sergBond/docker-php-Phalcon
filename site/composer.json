@@ -1,0 +1,8 @@
+{
+    "require": {
+        "stanislav-web/phalcon-ulogin": "dev-master",
+        "giggsey/libphonenumber-for-php": "^8.9",
+        "phpdocumentor/phpdocumentor": "2.*",
+	    "phpmailer/phpmailer": "~6.0"
+    }
+}

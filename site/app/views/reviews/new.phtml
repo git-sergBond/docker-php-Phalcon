@@ -1,0 +1,45 @@
+
+
+<?= $this->getContent() ?>
+<div class="tr-breadcrumb5 bg-image section-before">
+    <div class="container">
+        <div class="breadcrumb-info text-center">
+            <div class="user-title">
+                <h1> Отзыв </h1>
+            </div>
+            <ul class="job-meta tr-list list-inline">
+            </ul>
+        </div>
+    </div><!-- /.container -->
+</div><!-- /.tr-breadcrumb -->
+
+<div class="tr-profile section-padding">
+    <div class="container">
+        <div class="row">
+            <div class=" col-md-12">
+                <?= $this->tag->form(['reviews/create', 'method' => 'post', 'autocomplete' => 'off', 'class' => 'form-horizontal']) ?>
+                <div class="form-group">
+                    <label for="textReview" class="col-sm-2 control-label">Отзыв</label>
+                    <div class="col-sm-10">
+                        <?= $this->tag->textArea(['textReview', 'cols' => '30', 'rows' => '4', 'class' => 'form-control', 'id' => 'textReview']) ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="raiting" class="col-sm-2 control-label">Рейтинг</label>
+                    <div class="col-sm-10">
+                        <?= $this->tag->numericField(['raiting', 'min' => '0', 'max' => '10', 'class' => 'form-control', 'id' => 'raiting']) ?>
+                    </div>
+                </div>
+                <?= $this->tag->hiddenField(['executor']) ?>
+                <?= $this->tag->hiddenField(['objectId']) ?>
+                <?= $this->tag->hiddenField(['subjectId']) ?>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <?= $this->tag->submitButton(['Отправить', 'class' => 'btn btn-primary']) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

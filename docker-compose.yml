@@ -7,7 +7,12 @@ services:
     restart: always
     volumes: 
       - "./site:/var/www/html"
-
+  composer: 
+    image: composer
+    volumes: 
+      - "./site:/var/www/html"
+    working_dir: "/var/www/html"
+    command: composer install
 #  nginx:
 #    build: ./nginx
 #    ports:

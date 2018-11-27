@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <!-- Bootstrap CSS -->
+    <link type="text/css" rel="stylesheet" href="../../../../../полезное/profile/public/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../../../../../полезное/profile/public/css/style.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <!-- Add this after vue.js -->
+    <script type="text/javascript" src="../../../../../полезное/profile/public/js/polyfill.min.js"></script>
+    <script type="text/javascript" src="../../../../../полезное/profile/public/js/sass.js"></script>
+
+    <title>Личный кабинет / Профиль</title>
+    <style id="scss"></style>
+</head>
+<body>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        Sass.setWorkerUrl('public/js/sass.worker.js');
+
+        var sass = new Sass();
+
+        var base = '/public/css/';
+        var directory = '';
+        var files = [
+            'carousel.scss',
+        ];
+
+        sass.preloadFiles(base, directory, files, function() {
+
+            sass.compileFile('carousel.scss', function(result) {
+                document.getElementById('scss').innerHTML = result.text;
+            });
+
+        });
+    });
+</script>
+
+
+<div id="app">
+    <router-view></router-view>
+</div>
+
+<script src="../../js/build.js"></script>
+
+</body>
+</html>
