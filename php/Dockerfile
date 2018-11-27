@@ -15,4 +15,4 @@ RUN apt-get install -y git && git clone https://github.com/phalcon/cphalcon && c
 #RUN echo 'extension=phalcon.so' >/etc/php/7.0/mods-available/phalcon.ini
 
 EXPOSE 80
-CMD /etc/init.d/apache2 restart
+CMD apachectl -D FOREGROUND
