@@ -1,26 +1,37 @@
+##  based on Ubuntu 18.04
+### Linux Apach Postgres Php
+##  7.12.18         by Sergo
+# --------------------------
+# web 
+#     localhost:8081
+# db 
+#     port::5433 
+#     user::docker 
+#     password::docker
+
 version: '3'
+
 services:
-  php:
-    build: ./php
-    ports:
-      - 8080:80
-    restart: always
+
+  apache:
+    build: ${MY_CONTAINERS}/apache
     volumes: 
-      - "./site:/var/www/html"
-#  composer: 
-#    image: composer
-#    volumes: 
-#      - "./site:/var/www/html"
-#    working_dir: "/var/www/html"
-#    command: composer install
-#  db:
-#    image: postgres
-#    restart: always
-#    ports:
-#      - 5432:5432
-#    volumes:
-#      - ./db:/var/lib/postgresql/data
-#    environment:
-#      POSTGRES_USER: bro4you_ru
-#      POSTGRES_PASSWORD: bro4you_ru
-#      POSTGRES_DB: bro4you_ru
+      - ${MY_PHP_LOGS}:${DC_PHP_LOGS}
+      - ${MY_SITES}:${DC_SITES}/
+    ports:
+      - 8081:80
+      
+  postgresql: 
+    build: ${MY_CONTAINERS}/postgresql
+    volumes: 
+      - ${MY_DB_LOGS}:${DC_DB_LOGS}
+      - ${MY_DB_DUMP}:${DC_DB_DUMP}
+    ports:
+      - 5433:5432
+  
+  composer: 
+    image: composer
+    volumes: 
+      - ${MY_SITES}/${MY_BACKEND}:${DC_SITES}/${MY_BACKEND}
+    working_dir: ${DC_SITES}/${MY_BACKEND}
+    command: composer install
