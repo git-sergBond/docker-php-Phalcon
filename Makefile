@@ -27,19 +27,21 @@ test-install:
 	sudo docker-compose exec apache sh -c 'cd /var/www/ && phalcon create-project store'
 
 reinstall-backend:
-	sudo rm -rf ${MY_SITES} \
-		&& git clone https://github.com/RastCorp/backendPhalcon ${MY_SITES}/${MY_BACKEND} \
-		&& cat ${MY_CONTAINERS}/apache/config.php > ./sites/store/app/config/config.php \
-		&& docker-compose up composer
+	sudo rm -rf ${MY_SITES}/${MY_BACKEND} \
+	&& git clone https://github.com/RastCorp/backendPhalcon ${MY_SITES}/${MY_BACKEND} \
+	&& cat ${MY_CONTAINERS}/apache/config.php > ./sites/store/app/config/config.php \
+	&& docker-compose up composer
 
 reinstall-frontend:
-	#rm front
-	#git
-	#install -g
-	#install
+	sudo rm -rf ${MY_SITES}/${MY_FRONTEND} \
+	&& git clone https://github.com/RastCorp/WebClientSPA ${MY_SITES}/${MY_FRONTEND} \
+	&& cd ${MY_SITES}/${MY_FRONTEND} \
+	&& sudo npm install \
+	&& sudo npm install -g 
 
 upload-frontend:
-	#npm run build
+	cd ${MY_SITES}/${MY_FRONTEND} \
+	&& sudo npm run build
 	#del files in backend
 	#copy all files
 
