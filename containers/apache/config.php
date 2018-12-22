@@ -49,7 +49,7 @@ return new \Phalcon\Config([
         'username'    => 'docker',
         'password'    => 'docker',
         'port'        => '5432',
-        'host'        => 'localhost',
+        'host'        => 'postgresql',
         'dbname'      => 'postgres',
     ],
     'application' => [

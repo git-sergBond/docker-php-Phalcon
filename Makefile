@@ -4,12 +4,6 @@ include .env
 ##
 #fix
 #sudo chown -R $USER <directory_project>
-create-dirs:
-	sudo mkdir ${MY_SITES}
-	sudo mkdir ${MY_SITES}/${MY_BACKEND}
-	sudo mkdir ${MY_SITES}/${MY_FRONTEND}
-	sudo mkdir ${MY_PHP_LOGS}
-	sudo mkdir ${MY_DB_LOGS}
 dc-up-build:
 	sudo docker-compose up --build
 dc-build:
@@ -27,9 +21,9 @@ test-install:
 	sudo docker-compose exec apache sh -c 'cd /var/www/ && phalcon create-project store'
 
 reinstall-backend:
-	sudo rm -rf ${MY_SITES}/${MY_BACKEND} \
-	&& git clone https://github.com/RastCorp/backendPhalcon ${MY_SITES}/${MY_BACKEND} \
-	&& cat ${MY_CONTAINERS}/apache/config.php > ./sites/store/app/config/config.php \
+	sudo rm -rf ${MY_BACKEND} \
+	&& git clone https://github.com/RastCorp/backendPhalcon ${MY_BACKEND} \
+	&& cat ${MY_CONTAINERS}/apache/config.php > ${MY_BACKEND}/app/config/config.php \
 	&& docker-compose up composer
 
 reinstall-frontend:

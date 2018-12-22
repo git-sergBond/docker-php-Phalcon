@@ -13,14 +13,6 @@ version: '3'
 
 services:
 
-  apache:
-    build: ${MY_CONTAINERS}/apache
-    volumes: 
-      - ${MY_PHP_LOGS}:${DC_PHP_LOGS}
-      - ${MY_SITES}:${DC_SITES}/
-    ports:
-      - 8081:80
-      
   postgresql: 
     build: ${MY_CONTAINERS}/postgresql
     volumes: 
@@ -28,10 +20,20 @@ services:
       - ${MY_DB_DUMP}:${DC_DB_DUMP}
     ports:
       - 5433:5432
+
+  apache:
+    build: ${MY_CONTAINERS}/apache
+    volumes: 
+      - ${MY_PHP_LOGS}:${DC_PHP_LOGS}
+      - ${MY_BACKEND}:${DC_SITES}/
+    links:
+      - postgresql
+    ports:
+      - 8081:80
   
   composer: 
     image: composer
     volumes: 
-      - ${MY_SITES}/${MY_BACKEND}:${DC_SITES}/${MY_BACKEND}
+      - ${MY_BACKEND}:${DC_SITES}/${MY_BACKEND}
     working_dir: ${DC_SITES}/${MY_BACKEND}
     command: composer install
